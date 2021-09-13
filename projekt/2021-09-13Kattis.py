@@ -1,0 +1,1 @@
+while True: print(100*(3.141*(int(input("Radius: "))-int(input("Crust: ")))*(int(input("Radius: "))-int(input("Crust: "))))/(3.141*int(input("Radius: "))*int(input("Radius: ")))) #https://open.kattis.com/problems/pizza2
