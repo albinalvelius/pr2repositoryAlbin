@@ -24,3 +24,4 @@ fisk.simma()
 
 haj = Haj("Jeb")
 haj.ät("Harald")
+print("hej")
