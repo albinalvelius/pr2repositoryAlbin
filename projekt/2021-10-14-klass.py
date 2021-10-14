@@ -11,8 +11,10 @@ class Fisk(Djur):
         print("sim sim")
 
 class Haj(Djur):
-    def ät(self, Djur):
-        print(f'{Djur} munchades upp')
+    def __init__(self, name):
+        self.name = name
+    def ät(self, Fisk):
+        print(f'{self.name} munchade upp {Fisk}')
 
 fisk = Fisk("Harald")
 
