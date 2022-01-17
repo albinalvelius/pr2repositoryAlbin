@@ -12,7 +12,7 @@ c.pack()
 
 arrowImg = tk.PhotoImage(file='./projekt/bowsimulator/arrow1.png')
 board = tk.PhotoImage(file='./projekt/bowsimulator/board.png')
-board = board.subsample(7,7)
+board = board.subsample(5,5)
 bg = tk.PhotoImage(file='./projekt/bowsimulator/bg.png')
 cross = tk.PhotoImage(file='./projekt/bowsimulator/cross.png')
 cross = cross.subsample(17,17)
@@ -134,7 +134,7 @@ def startUI():
     def diff4():
         global shakeFactor, boardSpeedScale
         shakeFactor = 3
-        boardSpeedScale = 3
+        boardSpeedScale = 10
         forgetButtons()
         gameloop()
     def forgetButtons():
@@ -151,8 +151,11 @@ def startUI():
     d.place(anchor=tk.CENTER, x=938, y=669)
     e = tk.Button(c, image=button4, command=diff4)
     e.place(anchor=tk.CENTER, x=1190, y=669)
-
+    c.create_text(464, 560, anchor=tk.CENTER, text=f"EASY", fill="black", font=('Helvetica','10','bold'))
+    c.create_text(693, 560, anchor=tk.CENTER, text=f"MEDIUM", fill="black", font=('Helvetica','10','bold'))
+    c.create_text(938, 560, anchor=tk.CENTER, text=f"HARD", fill="black", font=('Helvetica','10','bold'))
+    c.create_text(1190, 560, anchor=tk.CENTER, text=f"VERY HARD", fill="black", font=('Helvetica','10','bold'))
+    c.create_text(900, 100, anchor=tk.CENTER, text=f"Ultra Accurate Bow Simulator v1.0.1", fill="red", font=('Helvetica','30','bold'))
 
 startUI()
-#gameloop()
 x.mainloop()
