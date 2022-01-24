@@ -1,10 +1,14 @@
+import threading
 import tkinter as tk
 import time
 import random as rand
 from tkinter.constants import ANCHOR
+from turtle import color
 from typing import Text
 import keyboard
 import math
+from socket import *
+from threading import Thread
 
 x = tk.Tk()
 c = tk.Canvas(x, bg="white", height=720, width=1280)
@@ -21,6 +25,7 @@ button1 = tk.PhotoImage(file="./projekt/bowsimulator/button1.png")
 button2 = tk.PhotoImage(file="./projekt/bowsimulator/button2.png")
 button3 = tk.PhotoImage(file="./projekt/bowsimulator/button3.png")
 button4 = tk.PhotoImage(file="./projekt/bowsimulator/button4.png")
+textingimg = tk.PhotoImage(file="./projekt/bowsimulator/texting.png")
 
 bowAnimation = [
     tk.PhotoImage(file='./projekt/bowsimulator/bow1.png'), 
@@ -113,6 +118,48 @@ def gameloop():
     c.update()
     x.after(17, func = gameloop)
 
+def online_chat(s, msg):
+    c.delete("all")
+    c.create_image(640, 360, image=textingimg)
+    c.create_text(100, 100, text=msg)
+    inputtext = tk.Text(c, height=10, width=20)
+    inputtext.place(anchor=tk.CENTER, x=470, y=550)
+    def sendmsg():
+        msg = inputtext.get(1.0, "end-1c")
+        b = msg.encode("utf-16")
+        s.send(b)
+    a = tk.Button(c, text="SEND!", command=sendmsg)
+    a.place(anchor=tk.CENTER, x=464, y=676)
+
+
+def start_server():
+    s = socket()
+    s.bind(("localhost", 12345))
+    s.listen()
+    conn, addr = s.accept()
+    def reciever():
+        b = s.recv(1024)
+        msg = b.decode("utf-16")
+        print(msg)
+        online_chat(s, msg)
+        reciever()
+    rec_thread = Thread(target=reciever)
+    rec_thread.start()
+    online_chat(s, "")
+    
+def start_client():
+    s = socket()
+    s.connect(("localhost", 12345))
+    s.listen()
+    def reciever():
+        b = s.recv(1024)
+        msg = b.decode("utf-16")
+        print(msg)
+        reciever()
+    rec_thread = Thread(target=reciever)
+    rec_thread.start()
+    online_chat(s)
+
 def startUI():
     def diff1():
         global shakeFactor
@@ -137,11 +184,20 @@ def startUI():
         boardSpeedScale = 10
         forgetButtons()
         gameloop()
+    def exitToChatServer():
+        forgetButtons()
+        start_server()
+    def exitToChatClient():
+        forgetButtons()
+        start_client()
     def forgetButtons():
         a.place_forget()
         b.place_forget()
         d.place_forget()
         e.place_forget()
+        f.place_forget()
+        g.place_forget()
+        c.delete("all")
     c.create_image(600, 360, image=uibg)
     a = tk.Button(c, image=button1, command=diff1)
     a.place(anchor=tk.CENTER, x=464, y=676)
@@ -151,6 +207,10 @@ def startUI():
     d.place(anchor=tk.CENTER, x=938, y=669)
     e = tk.Button(c, image=button4, command=diff4)
     e.place(anchor=tk.CENTER, x=1190, y=669)
+    f = tk.Button(c, text="START SERVER", command=exitToChatServer)
+    f.place(anchor=tk.CENTER, x=300, y=400)
+    g = tk.Button(c, text="START CLIENT", command=exitToChatClient)
+    g.place(anchor=tk.CENTER, x=300, y=440)
     c.create_text(464, 560, anchor=tk.CENTER, text=f"EASY", fill="black", font=('Helvetica','10','bold'))
     c.create_text(693, 560, anchor=tk.CENTER, text=f"MEDIUM", fill="black", font=('Helvetica','10','bold'))
     c.create_text(938, 560, anchor=tk.CENTER, text=f"HARD", fill="black", font=('Helvetica','10','bold'))
