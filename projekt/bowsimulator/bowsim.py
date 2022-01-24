@@ -118,7 +118,7 @@ def gameloop():
     c.update()
     x.after(17, func = gameloop)
 
-def online_chat(s, msg):
+def online_chat(s, msg, host, conn):
     c.delete("all")
     c.create_image(640, 360, image=textingimg)
     c.create_text(100, 100, text=msg)
@@ -127,38 +127,44 @@ def online_chat(s, msg):
     def sendmsg():
         msg = inputtext.get(1.0, "end-1c")
         b = msg.encode("utf-16")
-        s.send(b)
+        if host:
+            conn.send(b)
+        else:
+            s.send(b)
     a = tk.Button(c, text="SEND!", command=sendmsg)
     a.place(anchor=tk.CENTER, x=464, y=676)
 
 
 def start_server():
     s = socket()
-    s.bind(("localhost", 12345))
+    host = input("Ange IP: ")
+    s.bind((host, 12345))
     s.listen()
     conn, addr = s.accept()
     def reciever():
-        b = s.recv(1024)
+        b = conn.recv(1024)
+        print("sus")
         msg = b.decode("utf-16")
         print(msg)
-        online_chat(s, msg)
+        online_chat(s, msg, True, conn)
         reciever()
     rec_thread = Thread(target=reciever)
     rec_thread.start()
-    online_chat(s, "")
-    
+    online_chat(s, "", True, conn)
+
 def start_client():
     s = socket()
-    s.connect(("localhost", 12345))
-    s.listen()
+    host = input("Ange IP: ")
+    s.connect((host, 12345))
     def reciever():
         b = s.recv(1024)
         msg = b.decode("utf-16")
+        online_chat(s, msg, False, "")
         print(msg)
         reciever()
     rec_thread = Thread(target=reciever)
     rec_thread.start()
-    online_chat(s)
+    online_chat(s, "", False, "")
 
 def startUI():
     def diff1():
