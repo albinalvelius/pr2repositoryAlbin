@@ -26,6 +26,7 @@ button2 = tk.PhotoImage(file="./projekt/bowsimulator/button2.png")
 button3 = tk.PhotoImage(file="./projekt/bowsimulator/button3.png")
 button4 = tk.PhotoImage(file="./projekt/bowsimulator/button4.png")
 textingimg = tk.PhotoImage(file="./projekt/bowsimulator/texting.png")
+iphone = tk.PhotoImage(file="./projekt/bowsimulator/iphone6.png")
 
 bowAnimation = [
     tk.PhotoImage(file='./projekt/bowsimulator/bow1.png'), 
@@ -49,6 +50,7 @@ boardY = 450
 shakeFactor = 1
 boardSpeed = 1
 boardSpeedScale = 0
+msglist = []
 
 def gameloop():
     c.delete("all")
@@ -121,7 +123,10 @@ def gameloop():
 def online_chat(s, msg, host, conn):
     c.delete("all")
     c.create_image(640, 360, image=textingimg)
-    c.create_text(100, 100, text=msg)
+    c.create_image(150, 360, image=iphone)
+    msglist.append(msg)
+    for i in range(len(msglist)):
+        c.create_text(100, 300 - 20*i, text=msglist[i-1])
     inputtext = tk.Text(c, height=10, width=20)
     inputtext.place(anchor=tk.CENTER, x=470, y=550)
     def sendmsg():
@@ -131,6 +136,12 @@ def online_chat(s, msg, host, conn):
             conn.send(b)
         else:
             s.send(b)
+        c.delete("all")
+        c.create_image(640, 360, image=textingimg)
+        c.create_image(150, 360, image=iphone)
+        msglist.append(msg)
+        for i in range(len(msglist)):
+            c.create_text(100, 100 + 20*i, text=msglist[-(i+1)])
     a = tk.Button(c, text="SEND!", command=sendmsg)
     a.place(anchor=tk.CENTER, x=464, y=676)
 
