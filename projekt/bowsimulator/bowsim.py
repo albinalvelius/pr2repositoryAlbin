@@ -54,6 +54,8 @@ boardSpeed = 1
 boardSpeedScale = 0
 msglist = []
 isOnline = False
+host = "217.208.70.106"
+port = 5006
 
 def gameloop():
     c.delete("all")
@@ -123,7 +125,11 @@ def gameloop():
     c.update()
     x.after(17, func = gameloop)
 
-def online_chat(s, msg, host, conn):
+def init_connection():
+    
+    pass
+
+def online_chat(msg):
     c.delete("all")
     c.create_image(640, 360, image=textingimg)
     c.create_image(150, 360, image=iphone)
@@ -141,25 +147,23 @@ def online_chat(s, msg, host, conn):
     a = tk.Button(c, text="SEND!", command=sendmsg)
     a.place(anchor=tk.CENTER, x=464, y=676)
 
-def start_client(host, port):
+def start_client():
+    print("Attempting to connect to server...")
+    global s
     s = socket()
-    s.connect((host, port))
+    s.connect(("localhost", 5006)) #"217.208.70.106"
     def reciever():
         b = s.recv(1024)
         msg = b.decode()
-        online_chat(s, msg, False, "")
+        online_chat(msg)
         print(msg)
         reciever()
     rec_thread = Thread(target=reciever)
     rec_thread.start()
-    online_chat(s, "", False, "")
+    print("Connection successful")
 
 def startUI():
     c.delete("all")
-    def serverDir():
-        exitToChat(False)
-    def clientDir():
-        exitToChat(True)
     def diff1():
         global shakeFactor
         shakeFactor = 0
@@ -183,11 +187,8 @@ def startUI():
         boardSpeedScale = 10
         forgetButtons()
         gameloop()
-    def exitToChat(client):
-        if client:
-            start_client(str(ip.get(1.0, "end-1c")), int(port.get(1.0, "end-1c")))
-        else:
-            start_server(str(ip.get(1.0, "end-1c")), int(port.get(1.0, "end-1c")))
+    def exitToChat():
+        online_chat("")
         forgetButtons()
     def forgetButtons():
         try:
@@ -195,25 +196,10 @@ def startUI():
             b.place_forget()
             d.place_forget()
             e.place_forget()
-            f.place_forget()
             g.place_forget()
-            h.place_forget()
-            i.place_forget()
-            ip.place_forget()
-            port.place_forget()
         except:
             pass
         c.delete("all")
-    def setOnline():
-        global isOnline
-        isOnline = True
-        forgetButtons()
-        startUI()
-    def setOffline():
-        global isOnline
-        isOnline = False
-        forgetButtons()
-        startUI()
     c.create_image(600, 360, image=uibg)
     a = tk.Button(c, image=button1, command=diff1)
     a.place(anchor=tk.CENTER, x=464, y=676)
@@ -223,30 +209,17 @@ def startUI():
     d.place(anchor=tk.CENTER, x=938, y=669)
     e = tk.Button(c, image=button4, command=diff4)
     e.place(anchor=tk.CENTER, x=1190, y=669)
-    f = tk.Button(c, text="START SERVER", command=serverDir)
-    g = tk.Button(c, text="START CLIENT", command=clientDir)
+    g = tk.Button(c, text="START CLIENT", command=exitToChat)
     c.create_text(464, 560, anchor=tk.CENTER, text=f"EASY", fill="black", font=('Helvetica','10','bold'))
     c.create_text(693, 560, anchor=tk.CENTER, text=f"MEDIUM", fill="black", font=('Helvetica','10','bold'))
     c.create_text(938, 560, anchor=tk.CENTER, text=f"HARD", fill="black", font=('Helvetica','10','bold'))
     c.create_text(1190, 560, anchor=tk.CENTER, text=f"VERY HARD", fill="black", font=('Helvetica','10','bold'))
     c.create_text(900, 100, anchor=tk.CENTER, text=f"Ultra Accurate Bow Simulator v1.0.2", fill="red", font=('Helvetica','30','bold'))
-    if isOnline:
-        c.create_text(900, 170, anchor=tk.CENTER, text=f"ONLINE: {isOnline}", fill="green", font=('Helvetica','30','bold'))
-        c.create_text(800, 200, anchor=tk.CENTER, text=f"IP: ", fill="green", font=('Helvetica','15','bold'))
-        c.create_text(800, 220, anchor=tk.CENTER, text=f"PORT: ", fill="green", font=('Helvetica','15','bold'))
-        ip = tk.Text(c, height=1, width=15)
-        ip.place(anchor=tk.CENTER, x=900, y=200)
-        port = tk.Text(c, height=1, width=15)
-        port.place(anchor=tk.CENTER, x=900, y=220)
-        f.place(anchor=tk.CENTER, x=300, y=400)
-        g.place(anchor=tk.CENTER, x=300, y=440)
-    else:
-        c.create_text(900, 170, anchor=tk.CENTER, text=f"ONLINE: {isOnline}", fill="red", font=('Helvetica','30','bold'))
-    h = tk.Button(c, text="SET ONLINE", command=setOnline)
-    h.place(anchor=tk.CENTER, x=800, y=440)
-    i = tk.Button(c, text="SET OFFLINE", command=setOffline)
-    i.place(anchor=tk.CENTER, x=800, y=480)
+    c.create_text(900, 170, anchor=tk.CENTER, text=f"ONLINE: TRUE", fill="green", font=('Helvetica','30','bold'))
+    c.create_text(800, 200, anchor=tk.NW, text=f"IP: 217.208.70.106", fill="green", font=('Helvetica','15','bold'))
+    c.create_text(800, 220, anchor=tk.NW, text=f"PORT: 5006", fill="green", font=('Helvetica','15','bold'))
+    g.place(anchor=tk.CENTER, x=300, y=440)
 
-
+start_client()
 startUI()
 x.mainloop()

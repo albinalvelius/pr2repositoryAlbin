@@ -65,9 +65,9 @@ def gameloop():
     global playerDirection
     playerDirection1 = playerDirection
     playerDirection = "neutral"
-    if keyboard.is_pressed("w"):
+    if keyboard.is_pressed("e"):
         playerDirection = "updateUp"
-    if keyboard.is_pressed("s"):
+    if keyboard.is_pressed("d"):
         playerDirection = "updateDown"
     if playerDirection1 != playerDirection:
         send_data(playerDirection)
