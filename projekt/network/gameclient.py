@@ -25,27 +25,39 @@ def start_client():
     print("Attempting to connect to server...")
     global s, package, newPackage
     s = socket()
-    s.connect(("localhost", 5006)) #"217.208.70.106"
+    s.connect(("10.32.34.107", 5006)) #"217.208.70.106"
 
     def reciever():
         b = s.recv(1024)
         msg = b.decode()
         if msg == "packageRecieve":
             send_data("newPackage")
-        else:
-            for i in range(10):
-                if msg[0] == str(i):
-                    msg1 = ""
-                    for k in range(5):
-                        try:
-                            msg1 = msg1 + msg[k+1]
-                        except:
-                            break
-                    try:
-                        package[i] = int(msg1)
-                    except:
-                        print(f'Skumt fel inträffade där msg ({msg1}) på något vis fick en bokstav i sig')
-            print(str(msg))
+        if msg[0] == "#":
+            num = ""
+            for i in msg:
+                try:
+                    if i == "-":
+                        num = num + i
+                    else:
+                        x = int(i)
+                        num = num + i
+                except:
+                    print(num)
+                    if i == " " and i != "#":
+                        for i in range(10):
+                            if num[0] == str(i):
+                                msg1 = ""
+                                for k in range(5):
+                                    try:
+                                        msg1 = msg1 + num[k+1]
+                                    except:
+                                        break
+                                try:
+                                    package[i] = int(msg1)
+                                except:
+                                    print(f'Skumt fel inträffade där msg ({msg1}) på något vis fick en bokstav i sig')
+                    num = ""
+            print(str(package))        
         reciever()
     rec_thread = Thread(target=reciever)
     rec_thread.start()
@@ -83,12 +95,6 @@ def gameloop():
     c.create_rectangle(50, package[4]+50, 80, package[4]-50,fill="white")
     c.create_rectangle(1200, package[5]+50, 1230, package[5]-50,fill="white")
     c.create_text(640, 100, text=(f'{str(package[8])[0]}        ||       {str(package[8])[-1]}'), fill="white")
-    """
-    if playerDirection == "updateUp":
-        package[4] -= 5
-    if playerDirection == "updateDown":
-        package[4] += 5
-    """
     c.update()
     x.after(30, func = gameloop)
 
