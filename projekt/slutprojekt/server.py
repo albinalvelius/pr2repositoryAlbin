@@ -17,12 +17,15 @@ def listen_input(tc):
     global msg
     try:
         b = conn[tc].recv(1024)
-        msg = b.decode()
+        msg = str(b.decode())
+        print("msg: " + msg)
+        command = msg.split()
+        print("command: " + str(command))
     except:
         print(f'{addr[tc]} Disconnected')
         return
     send_data(tc)
-    print(addr[tc], msg)
+    #print(addr[tc], msg)
     listen_input(tc)
 
 def listen_client():
@@ -32,7 +35,6 @@ def listen_client():
     conn.append(x)
     addr.append(y)
     clientList.append(Thread(target=listen_input, args=[threadcount]))
-    print(y)
     initThreads(threadcount)
     threadcount = threadcount + 1
     listen_client()

@@ -14,28 +14,34 @@ import time
 x = tk.Tk()
 c = tk.Canvas(x, bg="white", height=720, width=1280, bd=0)
 
+def connectToServer():
+    try:
+        global s
+        s = socket()
+        s.connect(("localhost", 12345)) #"217.208.70.106"
+        print("Connection successfull")
+        logIn()
+    except:
+        print("Could not connect to server")
+        return
+
+def messageServer(msg):
+    e = msg.encode()
+    s.send(e)
+
 def logIn():
     def forget():
-        title.place_forget()
-        usernameText.place_forget()
-        passwordText.place_forget()
-        usernameBox.place_forget()
-        passwordBox.place_forget()
-        loginb.place_forget()
-        registerb.place_forget()
-        c.delete("all")
-
-    def sendRequest(mode, username, password):
         try:
-            global s
-            s = socket()
-            s.connect(("localhost", 12345)) #"217.208.70.106"
-            forget()
-            print(mode, username, password)
+            title.place_forget()
+            usernameText.place_forget()
+            passwordText.place_forget()
+            usernameBox.place_forget()
+            passwordBox.place_forget()
+            loginb.place_forget()
+            registerb.place_forget()
+            c.delete("all")
         except:
-            print("Could not connect to server")
-            return
-
+            pass
     title = tk.Label(c, text="Intercontinental Busses", bg="white")
     title.place(anchor=tk.CENTER, x=640, y=170)
     usernameText = tk.Label(c, text="Username", bg="white")
@@ -46,12 +52,12 @@ def logIn():
     usernameBox.place(anchor=tk.CENTER, x=640, y=300)
     passwordBox = tk.Entry(c, bg="lightgray")
     passwordBox.place(anchor=tk.CENTER, x=640, y=350)
-    loginb = tk.Button(c, text="Log In", command=lambda: sendRequest("log" ,usernameBox.get(), passwordBox.get()))
+    loginb = tk.Button(c, text="Log In", command=lambda: messageServer("login" + " " + str(usernameBox.get()) + " " + str(passwordBox.get())))
     loginb.place(anchor=tk.CENTER, x=640, y=380)
-    registerb = tk.Button(c, text="Register", command=lambda: sendRequest("reg" ,usernameBox.get(), passwordBox.get()))
+    registerb = tk.Button(c, text="Register", command=lambda: messageServer("register" + " " + str(usernameBox.get()) + " " + str(passwordBox.get())))
     registerb.place(anchor=tk.CENTER, x=640, y=420)
 
-logIn()
+connectToServer()
 
 c.pack()
 x.mainloop()
