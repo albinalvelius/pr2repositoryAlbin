@@ -12,6 +12,9 @@ from socket import *
 from threading import Thread
 import time
 
+clients = []
+busses = []
+
 x = tk.Tk()
 c = tk.Frame(x, bg="white", height=720, width=1280, bd=0)
 c.pack()
@@ -38,25 +41,34 @@ def listener():
     for widget in c.winfo_children():
        widget.destroy()
     print(msg)
-    if msg[0] == "register":
-        register()
-    if msg[0] == "login":
-        logIn()
-    if msg[0] == "mainmenu":
-        mainmenu()
-    if msg[0] == "logout":
-        logIn()
+    if msg[0] == "register": register()
+    elif msg[0] == "login": logIn()
+    elif msg[0] == "mainmenu": mainmenu()
+    elif msg[0] == "logout": logIn()
+    elif msg[0] == "adminpage": adminpage()
+    elif msg[0] == "clients":
+        for i in msg:
+            clients.append(i)
     listener()
 
 def messageServer(msg):
     e = msg.encode()
     s.send(e)
 
+def adminpage():
+    messageServer("request clients")
+    time.sleep(0.1)
+    messageServer("request busses")
+    logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
+    logoutb.place(anchor=tk.NW, x=10, y=10)
+    print(clients)
+    c.pack()
+
 def mainmenu():
     title = tk.Label(c, text="Main Menu", bg="white")
     title.place(anchor=tk.NE, x=640, y=150)
-    registerb = tk.Button(c, text="REGISTER", command=lambda: messageServer("logout"))
-    registerb.place(anchor=tk.CENTER, x=640, y=420)
+    logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
+    logoutb.place(anchor=tk.NW, x=10, y=10)
     c.pack()
 
 def register():
@@ -74,7 +86,8 @@ def register():
     username.place(anchor=tk.NE, x=640, y=300)
     password = tk.Label(c, text="Password:", bg="white")
     password.place(anchor=tk.NE, x=640, y=330)
-
+    logoutb = tk.Button(c, text="logout", command=lambda: messageServer("Back"))
+    logoutb.place(anchor=tk.NW, x=10, y=10)
     first_name1 = tk.Entry(c, bg="lightgray")
     first_name1.place(anchor=tk.NW, x=640, y=180)
     last_name1 = tk.Entry(c, bg="lightgray")
@@ -87,7 +100,6 @@ def register():
     username1.place(anchor=tk.NW, x=640, y=300)
     password1 = tk.Entry(c, bg="lightgray")
     password1.place(anchor=tk.NW, x=640, y=330)
-
     registerb = tk.Button(c, text="REGISTER", command=lambda: messageServer("registerClient" + " " + str(first_name1.get()) + " " + str(last_name1.get()) + " " + str(age1.get()) + " " + str(height1.get()) + " " + str(username1.get()) + " " + str(password1.get())))
     registerb.place(anchor=tk.CENTER, x=640, y=420)
     c.pack()

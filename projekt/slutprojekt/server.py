@@ -23,21 +23,35 @@ s = socket()
 s.bind((host, port))
 s.listen()
 
+def send_admin_data(command, tc):
+    if command[1] == "clients":
+        mycursor.execute("SELECT * FROM client_info")
+        myresult = mycursor.fetchall()
+        package = ""
+        for i in myresult:
+            package = package + str(i) + " "
+        package = "clients " + package
+        send_toClient(package, tc)
+
 def login(command, tc):
     mycursor.execute("SELECT * FROM client_info")
     myresult = mycursor.fetchall()
     for i in myresult:
         if i[5] == command[1] and i[6] == command[2]:
+            send_toClient("mainmenu", tc)
             print(command[1] + " Logged In!")
-    send_toClient("mainmenu", tc)
+            return
+        elif command[1] == "admin" and command[2] == "admin":
+            send_toClient("adminpage", tc)
+            print(command[1] + " Logged In!")
+            return
 
 def registerClient(command, tc):
-    if len(command) == 6:
-        sql = "INSERT INTO client_info (first_name, last_name, age, height, username, password) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = (command[1], command[2], command[3], command[4], command[5], command[6])
-        mycursor.execute(sql, val)
-        mydb.commit()
-        print(mycursor.rowcount, "record inserted.")
+    sql = "INSERT INTO client_info (first_name, last_name, age, height, username, password) VALUES (%s, %s, %s, %s, %s, %s)"
+    val = (command[1], command[2], command[3], command[4], command[5], command[6])
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
     send_toClient("login", tc)
 
 def listen_input(tc):
@@ -48,14 +62,11 @@ def listen_input(tc):
     print("msg: " + msg)
     command = msg.split()
     print("command: " + str(command))
-    if command[0] == "login":
-        login(command, tc)
-    if command[0] == "register":
-        send_toClient("register", tc)
-    if command[0] == "registerClient":
-        registerClient(command, tc)
-    if command[0] == "logout":
-        send_toClient("logout", tc)
+    if command[0] == "login" and len(command) == 3: login(command, tc)
+    if command[0] == "register": send_toClient("register", tc)
+    if command[0] == "registerClient" and len(command) == 7: registerClient(command, tc)
+    if command[0] == "logout": send_toClient("logout", tc)
+    if command[0] == "request" and len(command) == 2: send_admin_data(command, tc)
     """except:
         print(f'{addr[tc]} Disconnected')
         return"""
