@@ -29,9 +29,13 @@ def send_admin_data(command, tc):
         myresult = mycursor.fetchall()
         package = ""
         for i in myresult:
-            package = package + str(i) + " "
+            for k in i:
+                package = package + str(k) + " "
+            package = package + ", "
         package = "clients " + package
-        send_toClient(package, tc)
+        final_package = package.replace("'", "")
+        print("Final package: " + final_package)
+        send_toClient(final_package, tc)
 
 def login(command, tc):
     mycursor.execute("SELECT * FROM client_info")

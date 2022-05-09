@@ -33,10 +33,10 @@ def connectToServer():
         return
 
 def listener():
-    global s
+    global s, clients
     b = s.recv(1024)
-    msg = str(b.decode())
-    msg = msg.split()
+    msg1 = str(b.decode())
+    msg = msg1.split()
     c.forget()
     for widget in c.winfo_children():
        widget.destroy()
@@ -47,21 +47,31 @@ def listener():
     elif msg[0] == "logout": logIn()
     elif msg[0] == "adminpage": adminpage()
     elif msg[0] == "clients":
-        for i in msg:
-            clients.append(i)
+        msg1 = msg1.replace("clients ", "")
+        print(msg1)
+        k = ""
+        for i in msg1:
+            if i == ",":
+                clients.append(k)
+                k = ""
+            else:
+                k = k + i
     listener()
-
+    
 def messageServer(msg):
     e = msg.encode()
     s.send(e)
 
 def adminpage():
     messageServer("request clients")
-    time.sleep(0.1)
-    messageServer("request busses")
+    time.sleep(0.5)
     logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
     logoutb.place(anchor=tk.NW, x=10, y=10)
-    print(clients)
+    clientLabel = []
+    for i in range(len(clients)):
+        print(i)
+        clientLabel[i] = (tk.Label(c, text="Intercontinental Busses", bg="white"))
+        clientLabel[i].place(anchor=tk.NE, x=640, y=150 + 20*i)
     c.pack()
 
 def mainmenu():
