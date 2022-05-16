@@ -45,7 +45,7 @@ def listener():
     elif msg[0] == "login": logIn()
     elif msg[0] == "mainmenu": mainmenu()
     elif msg[0] == "logout": logIn()
-    elif msg[0] == "adminpage": adminpage()
+    elif msg[0] == "adminpage": messageServer("request clients")
     elif msg[0] == "clients":
         msg1 = msg1.replace("clients ", "")
         print(msg1)
@@ -56,6 +56,18 @@ def listener():
                 k = ""
             else:
                 k = k + i
+        adminpage()
+    elif msg[0] == "busses":
+        msg1 = msg1.replace("clients ", "")
+        print(msg1)
+        k = ""
+        for i in msg1:
+            if i == ",":
+                clients.append(k)
+                k = ""
+            else:
+                k = k + i
+        adminpage()
     listener()
     
 def messageServer(msg):
@@ -63,15 +75,16 @@ def messageServer(msg):
     s.send(e)
 
 def adminpage():
-    messageServer("request clients")
-    time.sleep(0.5)
     logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
     logoutb.place(anchor=tk.NW, x=10, y=10)
     clientLabel = []
+    clientEntry = []
     for i in range(len(clients)):
-        print(i)
-        clientLabel[i] = (tk.Label(c, text="Intercontinental Busses", bg="white"))
-        clientLabel[i].place(anchor=tk.NE, x=640, y=150 + 20*i)
+        for k in str(clients[i]).split():
+            clientEntry.append(Entry(x, bd = 5))
+            
+        clientLabel.append(tk.Label(c, text=str(clients[i]), bg="white"))
+        clientLabel[i].place(anchor=tk.CENTER, x=640, y=150 + 20*i)
     c.pack()
 
 def mainmenu():
