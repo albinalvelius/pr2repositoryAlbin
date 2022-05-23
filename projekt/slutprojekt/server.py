@@ -23,19 +23,25 @@ s = socket()
 s.bind((host, port))
 s.listen()
 
+def deleteClient(command, tc):
+    mycursor.execute()
+    pass
+
 def send_admin_data(command, tc):
     if command[1] == "clients":
         mycursor.execute("SELECT * FROM client_info")
-        myresult = mycursor.fetchall()
-        package = ""
-        for i in myresult:
-            for k in i:
-                package = package + str(k) + " "
-            package = package + ", "
-        package = "clients " + package
-        final_package = package.replace("'", "")
-        print("Final package: " + final_package)
-        send_toClient(final_package, tc)
+    elif command[1] == "busses":
+        mycursor.execute("SELECT * FROM bus_trips")
+    myresult = mycursor.fetchall()
+    package = ""
+    for i in myresult:
+        for k in i:
+            package = package + str(k) + " "
+        package = package + ", "
+    package = "clients " + package
+    final_package = package.replace("'", "")
+    print("Final package: " + final_package)
+    send_toClient(final_package, tc)
 
 def login(command, tc):
     mycursor.execute("SELECT * FROM client_info")
@@ -58,6 +64,14 @@ def registerClient(command, tc):
     print(mycursor.rowcount, "record inserted.")
     send_toClient("login", tc)
 
+def registerBus(command, tc):
+    sql = "INSERT INTO bus_trips (bus_from, bus_to, brand) VALUES (%s, %s, %s)"
+    val = (command[1], command[2], command[3])
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
+    send_toClient("login", tc)
+
 def listen_input(tc):
     global msg
     #try:
@@ -69,8 +83,10 @@ def listen_input(tc):
     if command[0] == "login" and len(command) == 3: login(command, tc)
     if command[0] == "register": send_toClient("register", tc)
     if command[0] == "registerClient" and len(command) == 7: registerClient(command, tc)
+    if command[0] == "registerBus" and len(command) == 4: registerBus(command, tc)
     if command[0] == "logout": send_toClient("logout", tc)
     if command[0] == "request" and len(command) == 2: send_admin_data(command, tc)
+    if command[0] == "deleteClient" and len(command) == 2: deleteClient(command, tc)
     """except:
         print(f'{addr[tc]} Disconnected')
         return"""

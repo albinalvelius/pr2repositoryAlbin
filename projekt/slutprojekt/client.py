@@ -14,6 +14,8 @@ import time
 
 clients = []
 busses = []
+clientLabel = []
+busLabel = []
 
 x = tk.Tk()
 c = tk.Frame(x, bg="white", height=720, width=1280, bd=0)
@@ -33,10 +35,14 @@ def connectToServer():
         return
 
 def listener():
-    global s, clients
+    global s, clients, busses, clientLabel, busLabel
     b = s.recv(1024)
     msg1 = str(b.decode())
     msg = msg1.split()
+    clientLabel.clear()
+    busLabel.clear()
+    clients.clear()
+    busses.clear()
     c.forget()
     for widget in c.winfo_children():
        widget.destroy()
@@ -45,7 +51,7 @@ def listener():
     elif msg[0] == "login": logIn()
     elif msg[0] == "mainmenu": mainmenu()
     elif msg[0] == "logout": logIn()
-    elif msg[0] == "adminpage": messageServer("request clients")
+    elif msg[0] == "adminpage": adminpage()
     elif msg[0] == "clients":
         msg1 = msg1.replace("clients ", "")
         print(msg1)
@@ -58,12 +64,12 @@ def listener():
                 k = k + i
         adminpage()
     elif msg[0] == "busses":
-        msg1 = msg1.replace("clients ", "")
+        msg1 = msg1.replace("busses ", "")
         print(msg1)
         k = ""
         for i in msg1:
             if i == ",":
-                clients.append(k)
+                busses.append(k)
                 k = ""
             else:
                 k = k + i
@@ -75,16 +81,63 @@ def messageServer(msg):
     s.send(e)
 
 def adminpage():
+    global clientLabel, busLabel
     logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
     logoutb.place(anchor=tk.NW, x=10, y=10)
-    clientLabel = []
-    clientEntry = []
+    getClients = tk.Button(c, text="Load clients", command=lambda: messageServer("request clients"))
+    getClients.place(anchor=tk.NW, x=10, y=50)
+    getBusses = tk.Button(c, text="Load busses", command=lambda: messageServer("request busses"))
+    getBusses.place(anchor=tk.NW, x=10, y=90)
     for i in range(len(clients)):
-        for k in str(clients[i]).split():
-            clientEntry.append(Entry(x, bd = 5))
-            
         clientLabel.append(tk.Label(c, text=str(clients[i]), bg="white"))
-        clientLabel[i].place(anchor=tk.CENTER, x=640, y=150 + 20*i)
+        clientLabel[i].place(anchor=tk.NW, x=50, y=150 + 20*i)
+    for i in range(len(busses)):
+        busLabel.append(tk.Label(c, text=str(busses[i]), bg="white"))
+        busLabel[i].place(anchor=tk.NE, x=1230, y=150 + 20*i)
+    idE = tk.Entry(c, bg="lightgray")
+    idE.place(anchor=tk.NW, x=640, y=150)
+    first_nameE = tk.Entry(c, bg="lightgray")
+    first_nameE.place(anchor=tk.NW, x=640, y=180)
+    last_nameE = tk.Entry(c, bg="lightgray")
+    last_nameE.place(anchor=tk.NW, x=640, y=210)
+    ageE = tk.Entry(c, bg="lightgray")
+    ageE.place(anchor=tk.NW, x=640, y=240)
+    heightE = tk.Entry(c, bg="lightgray")
+    heightE.place(anchor=tk.NW, x=640, y=270)
+    usernameE = tk.Entry(c, bg="lightgray")
+    usernameE.place(anchor=tk.NW, x=640, y=300)
+    passwordE = tk.Entry(c, bg="lightgray")
+    passwordE.place(anchor=tk.NW, x=640, y=330)
+
+    registerclientb = tk.Button(c, text="REGISTER NEW CLIENT", command=lambda: messageServer("registerClient" + " " + str(first_nameE.get()) + " " + str(last_nameE.get()) + " " + str(ageE.get()) + " " + str(heightE.get()) + " " + str(usernameE.get()) + " " + str(passwordE.get())))
+    registerclientb.place(anchor=tk.NW, x=640, y=50)
+    delclientb = tk.Button(c, text="DELETE CLIENT", command=lambda: messageServer("deleteClient " + str(idE.get())))
+    delclientb.place(anchor=tk.NW, x=640, y=80)
+    editclientb = tk.Button(c, text="EDIT CLIENT", command=lambda: messageServer("editClient " + str(idE.get()) + " " + str(first_nameE.get()) + " " + str(last_nameE.get()) + " " + str(ageE.get()) + " " + str(heightE.get()) + " " + str(usernameE.get()) + " " + str(passwordE.get())))
+    editclientb.place(anchor=tk.NW, x=640, y=110)
+
+    registerbusb = tk.Button(c, text="REGISTER NEW BUS", command=lambda: messageServer("registerBus " + str(first_nameE.get()) + " " + str(last_nameE.get()) + " " + str(ageE.get())))
+    registerbusb.place(anchor=tk.NW, x=640, y=350)
+    delbusb = tk.Button(c, text="DELETE BUS", command=lambda: messageServer("deleteBus " + str(idE.get())))
+    delbusb.place(anchor=tk.NW, x=640, y=380)
+    editbusb = tk.Button(c, text="EDIT BUS", command=lambda: messageServer("editBus " + str(idE.get()) + " " + str(first_nameE.get()) + " " + str(last_nameE.get()) + " " + str(ageE.get())))
+    editbusb.place(anchor=tk.NW, x=640, y=410)
+
+    idl = tk.Label(c, text="ID:", bg="white")
+    idl.place(anchor=tk.NE, x=640, y=150)
+    first_namel = tk.Label(c, text="First Name / Bus From:", bg="white")
+    first_namel.place(anchor=tk.NE, x=640, y=180)
+    last_namel = tk.Label(c, text="Last Name / Bus To:", bg="white")
+    last_namel.place(anchor=tk.NE, x=640, y=210)
+    agel = tk.Label(c, text="Age / Brand:", bg="white")
+    agel.place(anchor=tk.NE, x=640, y=240)
+    heightl = tk.Label(c, text="Height:", bg="white")
+    heightl.place(anchor=tk.NE, x=640, y=270)
+    usernamel = tk.Label(c, text="Username:", bg="white")
+    usernamel.place(anchor=tk.NE, x=640, y=300)
+    passwordl = tk.Label(c, text="Password:", bg="white")
+    passwordl.place(anchor=tk.NE, x=640, y=330)
+
     c.pack()
 
 def mainmenu():
