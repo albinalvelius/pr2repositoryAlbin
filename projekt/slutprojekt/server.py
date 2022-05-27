@@ -89,6 +89,12 @@ def login(command, tc):
             return
 
 def registerClient(command, tc):
+    mycursor.execute("SELECT * FROM client_info")
+    myresult = mycursor.fetchall()
+    for i in myresult:
+        if i[5] == command[1] or command[1] == "admin":
+            print("Username already taken!")
+            return
     sql = "INSERT INTO client_info (first_name, last_name, age, height, username, password) VALUES (%s, %s, %s, %s, %s, %s)"
     val = (command[1], command[2], command[3], command[4], command[5], command[6])
     mycursor.execute(sql, val)

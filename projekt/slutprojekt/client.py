@@ -60,12 +60,9 @@ def listener():
         k = ""
         for i in msg1:
             if i == ",":
-                if msg[0] == "clients":
-                    clients.append(k)
-                elif msg[0] == "busses":
-                    clients.append(k)
-                elif msg[0] == "bookings":
-                    clients.append(k)
+                if msg[0] == "clients": clients.append(k)
+                elif msg[0] == "busses": clients.append(k)
+                elif msg[0] == "bookings": clients.append(k)
                 k = ""
             else:
                 k = k + i
@@ -178,7 +175,7 @@ def register():
     username.place(anchor=tk.NE, x=640, y=300)
     password = tk.Label(c, text="Password:", bg="white")
     password.place(anchor=tk.NE, x=640, y=330)
-    logoutb = tk.Button(c, text="logout", command=lambda: messageServer("Back"))
+    logoutb = tk.Button(c, text="Back", command=lambda: messageServer("logout"))
     logoutb.place(anchor=tk.NW, x=10, y=10)
     first_name1 = tk.Entry(c, bg="lightgray")
     first_name1.place(anchor=tk.NW, x=640, y=180)
