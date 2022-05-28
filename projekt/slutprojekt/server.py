@@ -1,5 +1,6 @@
 from socket import *
 from threading import Thread
+import time
 import mysql.connector
 
 mydb = mysql.connector.connect(
@@ -38,10 +39,10 @@ def deleteBooking(command, tc):
 def editClient(command, tc):
     mycursor.execute(f"UPDATE `client_info` SET `first_name` = '{command[2]}', `last_name` = '{command[3]}', `age` = '{command[4]}', `height` = '{command[5]}', `username` = '{command[6]}', `password` = '{command[7]}' WHERE `client_info`.`id` = {command[1]}")
     mydb.commit()
-    send_toClient("adminpage", tc)
+    #send_toClient("adminpage", tc)
 
 def editBus(command, tc):
-    mycursor.execute(f"UPDATE `bus_trips` SET `bus_from` = '{command[2]}', `bus_to` = '{command[3]}', `brand` = '{command[4]}' WHERE `bus_trips`.`id` = {command[1]}")
+    mycursor.execute(f"UPDATE `bus_trips` SET `bus_from` = '{command[2]}', `bus_to` = '{command[3]}', `brand` = '{command[4]}', `departure_date` = '{command[5]}' WHERE `bus_trips`.`id` = {command[1]}")
     mydb.commit()
     send_toClient("adminpage", tc)
 
@@ -55,7 +56,7 @@ def deleteClient(command, tc):
     mycursor.execute(f"DELETE FROM `client_info` WHERE `client_info`.`id` = {command[1]}")
     mydb.commit()
     print("deleted client id: " + command[1])
-    send_toClient("adminpage", tc)
+    #send_toClient("adminpage", tc)
 
 def send_admin_data(command, tc):
     if command[1] == "clients":
@@ -75,18 +76,41 @@ def send_admin_data(command, tc):
     print("Final package: " + final_package)
     send_toClient(final_package, tc)
 
+def sendLoginData(u, tc):
+    mycursor.execute("SELECT * FROM bus_trips")
+    myresult = mycursor.fetchall()
+    package = ""
+    for i in myresult:
+        for k in i:
+            package = package + str(k) + " "
+        package = package + ", "
+    package = "login " + package + "!"
+    for i in u:
+        package = package + str(i) + " "
+    package = package + ",!"
+    mycursor.execute("SELECT * FROM client_booking")
+    myresult = mycursor.fetchall()
+    for i in myresult:
+        for k in i:
+            package = package + str(k) + " "
+        package = package + ", "
+    package = package.replace("'", "")
+    print("package: " + package)
+    send_toClient(package, tc)
+
 def login(command, tc):
     mycursor.execute("SELECT * FROM client_info")
     myresult = mycursor.fetchall()
     for i in myresult:
         if i[5] == command[1] and i[6] == command[2]:
-            send_toClient("mainmenu", tc)
+            sendLoginData(i, tc)
             print(command[1] + " Logged In!")
             return
         elif command[1] == "admin" and command[2] == "admin":
             send_toClient("adminpage", tc)
             print(command[1] + " Logged In!")
             return
+    send_toClient("logout", tc)
 
 def registerClient(command, tc):
     mycursor.execute("SELECT * FROM client_info")
@@ -100,15 +124,15 @@ def registerClient(command, tc):
     mycursor.execute(sql, val)
     mydb.commit()
     print(mycursor.rowcount, "record inserted.")
-    send_toClient("login", tc)
+    send_toClient("logout", tc)
 
 def registerBus(command, tc):
-    sql = "INSERT INTO bus_trips (bus_from, bus_to, brand) VALUES (%s, %s, %s)"
-    val = (command[1], command[2], command[3])
+    sql = "INSERT INTO bus_trips (bus_from, bus_to, brand, departure_date) VALUES (%s, %s, %s, %s)"
+    val = (command[1], command[2], command[3], command[4])
     mycursor.execute(sql, val)
     mydb.commit()
     print(mycursor.rowcount, "record inserted.")
-    send_toClient("login", tc)
+    send_toClient("adminpage", tc)
 
 def listen_input(tc):
     global msg
@@ -122,15 +146,16 @@ def listen_input(tc):
     if command[0] == "login" and len(command) == 3: login(command, tc)
     if command[0] == "register": send_toClient("register", tc)
     if command[0] == "registerClient" and len(command) == 7: registerClient(command, tc)
-    if command[0] == "registerBus" and len(command) == 4: registerBus(command, tc)
+    if command[0] == "registerBus" and len(command) == 5: registerBus(command, tc)
     if command[0] == "logout": send_toClient("logout", tc)
     if command[0] == "request" and len(command) == 2: send_admin_data(command, tc)
     if command[0] == "deleteClient" and len(command) == 2: deleteClient(command, tc)
     if command[0] == "deleteBus" and len(command) == 2: deleteBus(command, tc)
     if command[0] == "editClient" and len(command) == 8: editClient(command, tc)
-    if command[0] == "editBus" and len(command) == 5: editBus(command, tc)
+    if command[0] == "editBus" and len(command) == 6: editBus(command, tc)
     if command[0] == "insertBooking" and len(command) == 3: insertBooking(command, tc)
     if command[0] == "deleteBooking" and len(command) == 2: deleteBooking(command, tc)
+    if command[0] == "myprofile" and len(command) == 1: send_toClient("myprofile", tc)
     """except:
         print(f'{addr[tc]} Disconnected')
         return"""
