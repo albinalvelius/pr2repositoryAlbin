@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Värd: 127.0.0.1
--- Tid vid skapande: 27 maj 2022 kl 18:19
+-- Tid vid skapande: 28 maj 2022 kl 18:55
 -- Serverversion: 10.4.22-MariaDB
 -- PHP-version: 8.1.2
 
@@ -31,16 +31,19 @@ CREATE TABLE `bus_trips` (
   `id` int(11) NOT NULL,
   `bus_from` varchar(50) NOT NULL,
   `bus_to` varchar(50) NOT NULL,
-  `brand` varchar(50) NOT NULL
+  `brand` varchar(50) NOT NULL,
+  `departure_date` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumpning av Data i tabell `bus_trips`
 --
 
-INSERT INTO `bus_trips` (`id`, `bus_from`, `bus_to`, `brand`) VALUES
-(3, 'washington', 'moscow', 'bus'),
-(4, 'Stockholm', 'Madrid', 'Mercedes');
+INSERT INTO `bus_trips` (`id`, `bus_from`, `bus_to`, `brand`, `departure_date`) VALUES
+(9, 'usa', 'mexico', 'bmw', '2022-10-10'),
+(10, 'usa', 'canada', 'audi', '2023-01-23'),
+(11, 'france', 'china', 'volvo', '2022-06-19'),
+(12, 'russia', 'india', 'volvo', '2022-08-28');
 
 -- --------------------------------------------------------
 
@@ -87,7 +90,7 @@ INSERT INTO `client_info` (`id`, `first_name`, `last_name`, `age`, `height`, `us
 (5, 'admin', 'admin', 99, 199, 'admin', 'admin'),
 (6, 'Victor', 'Victor', 1993, 180, 'xX_gamingHamzterz_Xx', '[]qrsKtl//4'),
 (8, 'victor', 'rufus', 12, 185, 'rey', 'skywalekr'),
-(9, 'debug', 'debug', 12, 12, 'user', 'user');
+(15, 'testuser', 'testuser', 22, 22, 'user1', 'user1');
 
 --
 -- Index för dumpade tabeller
@@ -119,7 +122,7 @@ ALTER TABLE `client_info`
 -- AUTO_INCREMENT för tabell `bus_trips`
 --
 ALTER TABLE `bus_trips`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT för tabell `client_booking`
@@ -131,7 +134,7 @@ ALTER TABLE `client_booking`
 -- AUTO_INCREMENT för tabell `client_info`
 --
 ALTER TABLE `client_info`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
