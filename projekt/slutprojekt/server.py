@@ -29,7 +29,7 @@ def insertBooking(command, tc):
     val = (command[1], command[2])
     mycursor.execute(sql, val)
     mydb.commit()
-    send_toClient("adminpage", tc)
+    #send_toClient("adminpage", tc)
 
 def deleteBooking(command, tc):
     mycursor.execute(f"DELETE FROM client_booking WHERE client_booking.id = {command[1]}")
