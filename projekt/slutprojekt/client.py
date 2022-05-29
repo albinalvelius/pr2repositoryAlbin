@@ -11,6 +11,7 @@ from tkinter import *
 from socket import *
 from threading import Thread
 import time
+from functools import partial
 
 clients = []
 busses = []
@@ -36,10 +37,12 @@ def connectToServer():
         print("Could not connect to server")
         return
 
-def clearLists():
+def clearLabels():
     clientLabel.clear()
     bookingLabel.clear()
     busLabel.clear()
+
+def clearLists():
     clients.clear()
     busses.clear()
     bookings.clear()
@@ -52,6 +55,7 @@ def listener():
     c.forget()
     for widget in c.winfo_children():
        widget.destroy()
+    clearLabels()
     #print(msg1)
     if msg[0] == "register": register()
     elif msg[0] == "mainmenu": mainmenu()
@@ -186,49 +190,50 @@ def adminpage():
 
 def myProfile():
     title = tk.Label(c, text="Settings: ", bg="white")
-    title.place(anchor=tk.NE, x=740, y=100)
+    title.place(anchor=tk.NE, x=940, y=100)
     deleteProfileb = tk.Button(c, text="Delete Profile", command=lambda: messageServer(f"deleteClient {clients[0]}"))
-    deleteProfileb.place(anchor=tk.NW, x=740, y=100)
+    deleteProfileb.place(anchor=tk.NW, x=940, y=100)
     backb = tk.Button(c, text="Back", command=lambda: messageServer(f"login {clients[5]} {clients[6]}"))
     backb.place(anchor=tk.NW, x=10, y=10)
     editclientb = tk.Button(c, text="Edit Profile", command=lambda: messageServer("editClient " + str(clients[0]) + " " + str(first_nameE.get()) + " " + str(last_nameE.get()) + " " + str(ageE.get()) + " " + str(heightE.get()) + " " + str(usernameE.get()) + " " + str(passwordE.get())))
-    editclientb.place(anchor=tk.NW, x=740, y=130)
+    editclientb.place(anchor=tk.NW, x=940, y=130)
 
     first_namel = tk.Label(c, text="First Name:", bg="white")
-    first_namel.place(anchor=tk.NE, x=740, y=180)
+    first_namel.place(anchor=tk.NE, x=940, y=180)
     last_namel = tk.Label(c, text="Last Name:", bg="white")
-    last_namel.place(anchor=tk.NE, x=740, y=210)
+    last_namel.place(anchor=tk.NE, x=940, y=210)
     agel = tk.Label(c, text="Age:", bg="white")
-    agel.place(anchor=tk.NE, x=740, y=240)
+    agel.place(anchor=tk.NE, x=940, y=240)
     heightl = tk.Label(c, text="Height:", bg="white")
-    heightl.place(anchor=tk.NE, x=740, y=270)
+    heightl.place(anchor=tk.NE, x=940, y=270)
     usernamel = tk.Label(c, text="Username:", bg="white")
-    usernamel.place(anchor=tk.NE, x=740, y=300)
+    usernamel.place(anchor=tk.NE, x=940, y=300)
     passwordl = tk.Label(c, text="Password:", bg="white")
-    passwordl.place(anchor=tk.NE, x=740, y=330)
+    passwordl.place(anchor=tk.NE, x=940, y=330)
 
     first_nameE = tk.Entry(c, bg="lightgray")
-    first_nameE.place(anchor=tk.NW, x=740, y=180)
+    first_nameE.place(anchor=tk.NW, x=940, y=180)
     last_nameE = tk.Entry(c, bg="lightgray")
-    last_nameE.place(anchor=tk.NW, x=740, y=210)
+    last_nameE.place(anchor=tk.NW, x=940, y=210)
     ageE = tk.Entry(c, bg="lightgray")
-    ageE.place(anchor=tk.NW, x=740, y=240)
+    ageE.place(anchor=tk.NW, x=940, y=240)
     heightE = tk.Entry(c, bg="lightgray")
-    heightE.place(anchor=tk.NW, x=740, y=270)
+    heightE.place(anchor=tk.NW, x=940, y=270)
     usernameE = tk.Entry(c, bg="lightgray")
-    usernameE.place(anchor=tk.NW, x=740, y=300)
+    usernameE.place(anchor=tk.NW, x=940, y=300)
     passwordE = tk.Entry(c, bg="lightgray")
-    passwordE.place(anchor=tk.NW, x=740, y=330)
+    passwordE.place(anchor=tk.NW, x=940, y=330)
 
     for i in range(len(clients)-1):
         clientLabel.append(tk.Label(c, text=str(clients[i+1]), bg="white"))
-        clientLabel[i].place(anchor=tk.NW, x=880, y=180 + 30*i)
+        clientLabel[i].place(anchor=tk.NW, x=1080, y=180 + 30*i)
 
     myBookings = tk.Label(c, text="My active bookings: ", bg="white")
     myBookings.place(anchor=tk.NE, x=200, y=100)
 
     print(bookings)
-
+    bookingbutton = []
+    u = 0
     for i in range(len(bookings)):
         k = bookings[i].split()
         if k[1] == clients[0]:
@@ -237,8 +242,18 @@ def myProfile():
                 if k[2] == j[0]:
                     print(j[0])
                     bookingLabel.append(tk.Label(c, text=f"From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
-                    bookingLabel[i-1].place(anchor=tk.NW, x=200, y=100 + 30*i)
-
+                    bookingLabel[u].place(anchor=tk.NW, x=200, y=130 + 30*u)
+                    funca = partial(messageServer, f"deleteBooking {k[0]}")
+                    bookingbutton.append(tk.Button(c, text="Delete this Booking", command=funca))
+                    bookingbutton[u].place(anchor=tk.NE, x=200, y=130 + 30*u)
+                    u = u + 1
+    
+    """IdL = tk.Label(c, text="Bus ID", bg="white")
+    IdL.place(anchor=tk.CENTER, x=780, y=100)
+    IdE = tk.Entry(c, bg="lightgray")
+    IdE.place(anchor=tk.CENTER, x=780, y=130)
+    bookButton = tk.Button(c, text="Remove booking with b.ID", command=lambda: messageServer(f"deleteBooking {IdE.get()}"))
+    bookButton.place(anchor=tk.CENTER, x=780, y=160)"""
 
     c.pack()
 
@@ -252,37 +267,31 @@ def mainmenu():
 
     bussesl = tk.Label(c, text="Avaliable busses:", bg="white")
     bussesl.place(anchor=tk.NE, x=200, y=100)
-    bookingbutton = []
-    lj = []
-    k = 0
-    for d_ummy in ["a", "b"]:
-        if k == 0:
-            b1 = tk.Button(c, text="Book this Bus!" + d_ummy, command=lambda: print("insertBooking " + d_ummy))
-            b1.place(anchor=tk.NE, x=200, y=130 + 30*1)
-
-        if k == 1:
-            k = 1
-            b2 = tk.Button(c, text="Book this Bus!" + d_ummy, command=lambda: print("insertBooking " + d_ummy))
-            b2.place(anchor=tk.NE, x=200, y=130 + 30*2)
-        k = k + 1
     """
-    bookingbutton = [0,0,0,0]
     for i in range(len(busses)):
-        lj.append(busses[i].split())
+        j = busses[i].split()
+        #print("j: " + str(j))
+        busLabel.append(tk.Label(c, text=f"ID: {j[0]}. From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
+        busLabel[i].place(anchor=tk.NW, x=200, y=100 + 30*i)
+    
+    IdL = tk.Label(c, text="ID of the bus you wish to book", bg="white")
+    IdL.place(anchor=tk.CENTER, x=740, y=100)
+    IdE = tk.Entry(c, bg="lightgray")
+    IdE.place(anchor=tk.CENTER, x=740, y=130)
+    bookButton = tk.Button(c, text="Book bus with suggested ID", command=lambda: messageServer(f"insertBooking {clients[0]} {IdE.get()}"))
+    bookButton.place(anchor=tk.CENTER, x=740, y=160)"""
+    
+    bookingbutton = []
+    for i in range(len(busses)):
         j = busses[i].split()
         print("j: " + str(j))
         busLabel.append(tk.Label(c, text=f"From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
         busLabel[i].place(anchor=tk.NW, x=200, y=130 + 30*i)
         print(j[0])
-        k = k+1
-        if i == 0:
-            b1 = (tk.Button(c, text="Book this Bus!" + str(k), command=lambda: print(f"insertBooking {clients[0]} {j[0]}")))
-            b1.place(anchor=tk.NE, x=200, y=130 + 30*i)
-        else:
-            bookingbutton[i] = (tk.Button(c, text="Book this Bus!" + str(k), command=lambda: print(f"insertBooking {clients[0]} {j[0]}")))
-            #bookingbutton.append(tk.Button(c, text="Book this Bus!" + str(k), command=lambda: print("insertBooking " + str(k))))
-            bookingbutton[i].place(anchor=tk.NE, x=200, y=130 + 30*i)
-    """
+        funca = partial(messageServer, f"insertBooking {clients[0]} {j[0]}")
+        bookingbutton.append(tk.Button(c, text="Book this Bus!" + j[0], command=funca))
+        bookingbutton[i].place(anchor=tk.NE, x=200, y=130 + 30*i)
+    
     c.pack()
 
 def register():

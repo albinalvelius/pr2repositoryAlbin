@@ -24,17 +24,42 @@ s = socket()
 s.bind((host, port))
 s.listen()
 
+def clearUnusedBookings():
+    mycursor.execute("SELECT * FROM client_info")
+    clientinfo = mycursor.fetchall()
+    mycursor.execute("SELECT * FROM bus_trips")
+    bustrips = mycursor.fetchall()
+    mycursor.execute("SELECT * FROM client_booking")
+    clientbookings = mycursor.fetchall()
+    u = False
+    for i in range(len(clientbookings)-1):
+        i0 = clientbookings[i]
+        for k in range(len(clientinfo)-1):
+            k0 = clientinfo[k]
+            if i0[1] == k0[0]:
+                u = True
+        for p in range(len(bustrips)-1):
+            p0 = bustrips[p]
+            if i0[2] == p0[0]:
+                u = True
+        if u == False:
+            mycursor.execute(f"DELETE FROM client_booking WHERE client_booking.id = {i0[0]}")
+            mydb.commit()
+        u = False
+
 def insertBooking(command, tc):
     sql = "INSERT INTO client_booking (idClient, idBus) VALUES (%s, %s)"
     val = (command[1], command[2])
     mycursor.execute(sql, val)
     mydb.commit()
+    clearUnusedBookings()
     #send_toClient("adminpage", tc)
 
 def deleteBooking(command, tc):
     mycursor.execute(f"DELETE FROM client_booking WHERE client_booking.id = {command[1]}")
     mydb.commit()
-    send_toClient("adminpage", tc)
+    clearUnusedBookings()
+    #send_toClient("adminpage", tc)
 
 def editClient(command, tc):
     mycursor.execute(f"UPDATE `client_info` SET `first_name` = '{command[2]}', `last_name` = '{command[3]}', `age` = '{command[4]}', `height` = '{command[5]}', `username` = '{command[6]}', `password` = '{command[7]}' WHERE `client_info`.`id` = {command[1]}")
@@ -50,12 +75,14 @@ def deleteBus(command, tc):
     mycursor.execute(f"DELETE FROM bus_trips WHERE bus_trips.id = {command[1]}")
     mydb.commit()
     print("deleted bus id: " + command[1])
+    clearUnusedBookings()
     send_toClient("adminpage", tc)
 
 def deleteClient(command, tc):
     mycursor.execute(f"DELETE FROM `client_info` WHERE `client_info`.`id` = {command[1]}")
     mydb.commit()
     print("deleted client id: " + command[1])
+    clearUnusedBookings()
     #send_toClient("adminpage", tc)
 
 def send_admin_data(command, tc):
