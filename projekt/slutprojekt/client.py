@@ -1,11 +1,3 @@
-#Långdistansbuss Paris - Peking
-
-#logga in / registrera som kund
-#logga in som admin
-
-#Passagerare samt resan som klasser
-#Passagerare identifeiras med Ålder, Kön, Namn
-
 import tkinter as tk
 from tkinter import *
 from socket import *
@@ -13,6 +5,7 @@ from threading import Thread
 import time
 from functools import partial
 
+# Definierar listor som används senare
 clients = []
 busses = []
 bookings = []
@@ -23,23 +16,26 @@ bookingLabel = []
 tickets = []
 ticketInfo = []
 
+# Skapar frame
 x = tk.Tk()
 c = tk.Frame(x, bg="white", height=720, width=1280, bd=0)
 c.pack()
 
+# Funktion som försöker ansluta sig till servern på localhost
 def connectToServer():
     try:
         global s
         s = socket()
-        s.connect(("localhost", 12345)) #"217.208.70.106"
+        s.connect(("localhost", 12345))
         print("Connection successfull")
         listenThread = Thread(target=listener)
         listenThread.start()
-        logIn()
+        logIn() # Tar användaren till loginskärmen då klienten fått kontakt med servern
     except:
         print("Could not connect to server")
         return
 
+# Definierar en klass för resebiljetterna
 class Resa:
     def __init__(self, fromcity, tocity, brand, date):
         self.fromcity = fromcity
@@ -65,26 +61,29 @@ class Resa:
         brandtext = tk.Label(ticket , bg = 'white' , text = self.brand , fg = 'grey')
         brandtext.place(x = 10 , y = 165 , anchor = tk.NW)
 
+# Funktion som rensar alla listor med labels
 def clearLabels():
     clientLabel.clear()
     bookingLabel.clear()
     busLabel.clear()
 
+# Funktion som rensar alla listor med angiven information
 def clearLists():
     clients.clear()
     busses.clear()
     bookings.clear()
 
+# Funktion som lyssnar efter instruktioner från servern. Servern sköter logiken och det mesta av
+# informationen som klienten får är vilket fönster som ska visas etc
 def listener():
     global s, clients, busses, bookings, clientLabel, busLabel
     b = s.recv(1024)
     msg1 = str(b.decode())
     msg = msg1.split()
-    c.forget()
+    c.forget() # Tar bort alla widgets från föregående fönster
     for widget in c.winfo_children():
        widget.destroy()
     clearLabels()
-    #print(msg1)
     if msg[0] == "register": register()
     elif msg[0] == "mainmenu": mainmenu()
     elif msg[0] == "logout": 
@@ -94,10 +93,9 @@ def listener():
         clearLists()
         adminpage()
     elif msg[0] == "myprofile": myProfile()
-    elif msg[0] == "clients" or msg[0] == "busses" or msg[0] == "bookings":
-        clearLists()
+    elif msg[0] == "clients" or msg[0] == "busses" or msg[0] == "bookings": # Tar emot information från servern och packeterar
+        clearLists()                                                        # in den i listor
         msg1 = msg1.replace(f"{msg[0]} ", "")
-        #print(msg1)
         k = ""
         for i in msg1:
             if i == ",":
@@ -108,10 +106,12 @@ def listener():
             else:
                 k = k + i
         adminpage()
+    # Tar emot information från servern och packeterar in den i listor. Är i ett lite annorlunda
+    # format som för funktionen ovan. Skulle säkert kunna göra packeteringen i samma format så
+    # det bara behövs en funktiom för detta...
     elif msg[0] == "login": 
-        clearLists()
-        msg1 = msg1.replace(f"{msg[0]} ", "")
-        #print(msg1)
+        clearLists()        
+        msg1 = msg1.replace(f"{msg[0]} ", "") 
         k = ""
         p = 0
         for i in msg1:
@@ -124,18 +124,21 @@ def listener():
                 k = ""
             elif i != "!":
                 k = k + i
-        try:
+        try: # Ibland kom det upp skumma felmeddelanden för denna och jag vet inte varför. Detta löste problemet.
             clients = clients[0].split()
         except:
-            pass
-        #print(str(clients))
+            print("?")
         mainmenu()
     listener()
     
+# Funktion som tar emot ett meddelande som vidarebefordras till servern. Olika meddelanden korresponderar till olika
+# funktioner som servern kör. Dessa intruktioner leder sedan till intruktioner och information till klienten
 def messageServer(msg):
     e = msg.encode()
     s.send(e)
 
+# Funktion som lägger in reseinformation i ett format så det kan visas som en biljett. 
+# Här används klasser
 def viewTickets():
     tickets.clear()
     for i in ticketInfo:
@@ -143,6 +146,7 @@ def viewTickets():
     for i in tickets:
         i.Generate()
 
+# Funktion som definierar alla tkinter element för administratörssidan
 def adminpage():
     global clientLabel, busLabel, bookingLabel
     logoutb = tk.Button(c, text="logout", command=lambda: messageServer("logout"))
@@ -223,6 +227,7 @@ def adminpage():
     
     c.pack()
 
+# Funktion som definierar tkinter för privata profilsidan för den inloggade klienten
 def myProfile():
     editclientb = tk.Button(c, text="View Ticket(s)", command=lambda: viewTickets())
     editclientb.place(anchor=tk.NE, x=1270, y=10)
@@ -269,7 +274,8 @@ def myProfile():
     myBookings = tk.Label(c, text="My active bookings: ", bg="white")
     myBookings.place(anchor=tk.NE, x=200, y=100)
 
-    print(bookings)
+    # Ritar ut de bussresorna som är bokade av den inloggade klienten
+    # Blev ganska komplicerad och svår att förstå och det kan finnas ett lättare sätt att göra detta
     bookingbutton = []
     u = 0
     ticketInfo.clear()
@@ -286,16 +292,10 @@ def myProfile():
                     bookingbutton.append(tk.Button(c, text="Delete this Booking", command=funca))
                     bookingbutton[u].place(anchor=tk.NE, x=200, y=130 + 30*u)
                     u = u + 1
-    
-    """IdL = tk.Label(c, text="Bus ID", bg="white")
-    IdL.place(anchor=tk.CENTER, x=780, y=100)
-    IdE = tk.Entry(c, bg="lightgray")
-    IdE.place(anchor=tk.CENTER, x=780, y=130)
-    bookButton = tk.Button(c, text="Remove booking with b.ID", command=lambda: messageServer(f"deleteBooking {IdE.get()}"))
-    bookButton.place(anchor=tk.CENTER, x=780, y=160)"""
-
     c.pack()
 
+# Definierar tkinter för huvudmenyn efter man loggat in som klient (inte admin)
+# Detta är mer av en bokningssida än en "huvudmeny" och jag skulle kunna ändra namnet men detta fungerar
 def mainmenu():
     title = tk.Label(c, text=f'Welcome {clients[1]} {clients[2]}', bg="white")
     title.place(anchor=tk.CENTER, x=640, y=20)
@@ -306,20 +306,8 @@ def mainmenu():
 
     bussesl = tk.Label(c, text="Avaliable busses:", bg="white")
     bussesl.place(anchor=tk.NE, x=200, y=100)
-    """
-    for i in range(len(busses)):
-        j = busses[i].split()
-        #print("j: " + str(j))
-        busLabel.append(tk.Label(c, text=f"ID: {j[0]}. From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
-        busLabel[i].place(anchor=tk.NW, x=200, y=100 + 30*i)
     
-    IdL = tk.Label(c, text="ID of the bus you wish to book", bg="white")
-    IdL.place(anchor=tk.CENTER, x=740, y=100)
-    IdE = tk.Entry(c, bg="lightgray")
-    IdE.place(anchor=tk.CENTER, x=740, y=130)
-    bookButton = tk.Button(c, text="Book bus with suggested ID", command=lambda: messageServer(f"insertBooking {clients[0]} {IdE.get()}"))
-    bookButton.place(anchor=tk.CENTER, x=740, y=160)"""
-    
+    # Ritar ut de bokningsbara bussresorna samt de knappar för att boka resorna
     bookingbutton = []
     for i in range(len(busses)):
         j = busses[i].split()
@@ -331,6 +319,7 @@ def mainmenu():
     
     c.pack()
 
+# Ristar ut tkinter för registreringsformuläret
 def register():
     title = tk.Label(c, text="Intercontinental Busses", bg="white")
     title.place(anchor=tk.NE, x=640, y=150)
@@ -364,6 +353,8 @@ def register():
     registerb.place(anchor=tk.CENTER, x=640, y=420)
     c.pack()
 
+# Definierar tkinter för loginskärmen. Skulle kunna tolkas som den riktiga "huvudmenyn"
+# Det är här du hamnar när du startar programmet.
 def logIn():
     title = tk.Label(c, text="Intercontinental Busses", bg="white")
     title.config(font=('Helvatical bold',25))
