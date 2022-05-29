@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Värd: 127.0.0.1
--- Tid vid skapande: 28 maj 2022 kl 18:55
+-- Tid vid skapande: 29 maj 2022 kl 20:56
 -- Serverversion: 10.4.22-MariaDB
 -- PHP-version: 8.1.2
 
@@ -62,7 +62,9 @@ CREATE TABLE `client_booking` (
 --
 
 INSERT INTO `client_booking` (`id`, `idClient`, `idBus`) VALUES
-(3, 5, 3);
+(31, 16, 9),
+(46, 16, 11),
+(47, 16, 12);
 
 -- --------------------------------------------------------
 
@@ -90,7 +92,8 @@ INSERT INTO `client_info` (`id`, `first_name`, `last_name`, `age`, `height`, `us
 (5, 'admin', 'admin', 99, 199, 'admin', 'admin'),
 (6, 'Victor', 'Victor', 1993, 180, 'xX_gamingHamzterz_Xx', '[]qrsKtl//4'),
 (8, 'victor', 'rufus', 12, 185, 'rey', 'skywalekr'),
-(15, 'testuser', 'testuser', 22, 22, 'user1', 'user1');
+(16, 'user2', 'user2', 22, 22, 'user1', 'user1'),
+(17, 'Victor', 'Forsebäck', 12, 146, 'victorman', 'victor');
 
 --
 -- Index för dumpade tabeller
@@ -128,13 +131,13 @@ ALTER TABLE `bus_trips`
 -- AUTO_INCREMENT för tabell `client_booking`
 --
 ALTER TABLE `client_booking`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT för tabell `client_info`
 --
 ALTER TABLE `client_info`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

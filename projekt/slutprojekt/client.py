@@ -20,6 +20,9 @@ clientLabel = []
 busLabel = []
 bookingLabel = []
 
+tickets = []
+ticketInfo = []
+
 x = tk.Tk()
 c = tk.Frame(x, bg="white", height=720, width=1280, bd=0)
 c.pack()
@@ -36,6 +39,31 @@ def connectToServer():
     except:
         print("Could not connect to server")
         return
+
+class Resa:
+    def __init__(self, fromcity, tocity, brand, date):
+        self.fromcity = fromcity
+        self.tocity = tocity
+        self.brand = brand
+        self.date = date
+
+    def Generate(self):
+        a = tk.Tk()
+        ticket = tk.Frame(a , bg = 'white' , height = 200 , width = 640)
+        ticket.pack(pady = 8 , padx = 6)
+
+        bus = tk.Label(ticket , text = "INTERCONTINENTAL BUSSES INC" , bg = 'white')
+        bus.config(font=('Helvatical bold',25))
+        bus.place(x = 320 , y = 100 , anchor = tk.CENTER)
+
+        destination = tk.Label(ticket , text = (self.fromcity + ' - ' + self.tocity) , bg = 'white')
+        destination.place(x = 10 , y = 10 , anchor = tk.NW)
+
+        departure = tk.Label(ticket , bg = 'white' , text = self.date, fg = 'grey')
+        departure.place(x = 630 , y = 12 , anchor = tk.NE)
+
+        brandtext = tk.Label(ticket , bg = 'white' , text = self.brand , fg = 'grey')
+        brandtext.place(x = 10 , y = 165 , anchor = tk.NW)
 
 def clearLabels():
     clientLabel.clear()
@@ -107,6 +135,13 @@ def listener():
 def messageServer(msg):
     e = msg.encode()
     s.send(e)
+
+def viewTickets():
+    tickets.clear()
+    for i in ticketInfo:
+        tickets.append(Resa(i[1], i[2], i[3], i[4]))
+    for i in tickets:
+        i.Generate()
 
 def adminpage():
     global clientLabel, busLabel, bookingLabel
@@ -189,6 +224,9 @@ def adminpage():
     c.pack()
 
 def myProfile():
+    editclientb = tk.Button(c, text="View Ticket(s)", command=lambda: viewTickets())
+    editclientb.place(anchor=tk.NE, x=1270, y=10)
+
     title = tk.Label(c, text="Settings: ", bg="white")
     title.place(anchor=tk.NE, x=940, y=100)
     deleteProfileb = tk.Button(c, text="Delete Profile", command=lambda: messageServer(f"deleteClient {clients[0]}"))
@@ -234,13 +272,14 @@ def myProfile():
     print(bookings)
     bookingbutton = []
     u = 0
+    ticketInfo.clear()
     for i in range(len(bookings)):
         k = bookings[i].split()
         if k[1] == clients[0]:
             for p in range(len(busses)):
                 j = busses[p].split()
                 if k[2] == j[0]:
-                    print(j[0])
+                    ticketInfo.append(j)
                     bookingLabel.append(tk.Label(c, text=f"From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
                     bookingLabel[u].place(anchor=tk.NW, x=200, y=130 + 30*u)
                     funca = partial(messageServer, f"deleteBooking {k[0]}")
@@ -284,10 +323,8 @@ def mainmenu():
     bookingbutton = []
     for i in range(len(busses)):
         j = busses[i].split()
-        print("j: " + str(j))
         busLabel.append(tk.Label(c, text=f"From {j[1]} to {j[2]}. Brand: {j[3]}. Date of Departure: {j[4]}", bg="white"))
         busLabel[i].place(anchor=tk.NW, x=200, y=130 + 30*i)
-        print(j[0])
         funca = partial(messageServer, f"insertBooking {clients[0]} {j[0]}")
         bookingbutton.append(tk.Button(c, text="Book this Bus!" + j[0], command=funca))
         bookingbutton[i].place(anchor=tk.NE, x=200, y=130 + 30*i)
@@ -329,6 +366,7 @@ def register():
 
 def logIn():
     title = tk.Label(c, text="Intercontinental Busses", bg="white")
+    title.config(font=('Helvatical bold',25))
     title.place(anchor=tk.CENTER, x=640, y=170)
     usernameText = tk.Label(c, text="Username", bg="white")
     usernameText.place(anchor=tk.CENTER, x=640, y=280)

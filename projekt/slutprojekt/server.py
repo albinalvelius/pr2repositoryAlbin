@@ -163,29 +163,29 @@ def registerBus(command, tc):
 
 def listen_input(tc):
     global msg
-    #try:
-    b = conn[tc].recv(1024)
-    msg = str(b.decode())
-    print("msg: " + msg)
-    command = msg.split()
-    print("command: " + str(command))
+    try:
+        b = conn[tc].recv(1024)
+        msg = str(b.decode())
+        print("msg: " + msg)
+        command = msg.split()
+        print("command: " + str(command))
 
-    if command[0] == "login" and len(command) == 3: login(command, tc)
-    if command[0] == "register": send_toClient("register", tc)
-    if command[0] == "registerClient" and len(command) == 7: registerClient(command, tc)
-    if command[0] == "registerBus" and len(command) == 5: registerBus(command, tc)
-    if command[0] == "logout": send_toClient("logout", tc)
-    if command[0] == "request" and len(command) == 2: send_admin_data(command, tc)
-    if command[0] == "deleteClient" and len(command) == 2: deleteClient(command, tc)
-    if command[0] == "deleteBus" and len(command) == 2: deleteBus(command, tc)
-    if command[0] == "editClient" and len(command) == 8: editClient(command, tc)
-    if command[0] == "editBus" and len(command) == 6: editBus(command, tc)
-    if command[0] == "insertBooking" and len(command) == 3: insertBooking(command, tc)
-    if command[0] == "deleteBooking" and len(command) == 2: deleteBooking(command, tc)
-    if command[0] == "myprofile" and len(command) == 1: send_toClient("myprofile", tc)
-    """except:
+        if command[0] == "login" and len(command) == 3: login(command, tc)
+        if command[0] == "register": send_toClient("register", tc)
+        if command[0] == "registerClient" and len(command) == 7: registerClient(command, tc)
+        if command[0] == "registerBus" and len(command) == 5: registerBus(command, tc)
+        if command[0] == "logout": send_toClient("logout", tc)
+        if command[0] == "request" and len(command) == 2: send_admin_data(command, tc)
+        if command[0] == "deleteClient" and len(command) == 2: deleteClient(command, tc)
+        if command[0] == "deleteBus" and len(command) == 2: deleteBus(command, tc)
+        if command[0] == "editClient" and len(command) == 8: editClient(command, tc)
+        if command[0] == "editBus" and len(command) == 6: editBus(command, tc)
+        if command[0] == "insertBooking" and len(command) == 3: insertBooking(command, tc)
+        if command[0] == "deleteBooking" and len(command) == 2: deleteBooking(command, tc)
+        if command[0] == "myprofile" and len(command) == 1: send_toClient("myprofile", tc)
+    except:
         print(f'{addr[tc]} Disconnected')
-        return"""
+        return
     #print(addr[tc], msg)
     listen_input(tc)
 
