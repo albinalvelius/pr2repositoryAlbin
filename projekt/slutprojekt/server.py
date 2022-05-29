@@ -66,6 +66,12 @@ def deleteBooking(command, tc):
 
 # Funktion som ändrar angivna värden i användartabellen
 def editClient(command, tc):
+    mycursor.execute("SELECT * FROM client_info")
+    myresult = mycursor.fetchall()
+    for i in myresult: # Kollar om användarnamn redan är taget. Kan inte heller döpa sig till "admin"
+        if i[5] == command[2] or command[2] == "admin":
+            print("Username already taken!")
+            return
     mycursor.execute(f"UPDATE `client_info` SET `first_name` = '{command[2]}', `last_name` = '{command[3]}', `age` = '{command[4]}', `height` = '{command[5]}', `username` = '{command[6]}', `password` = '{command[7]}' WHERE `client_info`.`id` = {command[1]}")
     mydb.commit()
 
